@@ -5,20 +5,20 @@ pragma solidity ^0.6.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Sweepstake is Ownable{
-    address[] public participants_entries;
-    bytes32[] public teams = [bytes32("Arsenal"), "Manchester United", "Liverpool", "Leicester", "Brentford", "Crystal Palace",
+    address[] internal participants_entries;
+    bytes32[] internal teams = [bytes32("Arsenal"), "Manchester United", "Liverpool", "Leicester", "Brentford", "Crystal Palace",
                                 "Southampton", "Newcastle", "Fulham", "Aston Villa", "Manchester City", "Everton", "Tottenham", 
                                 "Chelsea", "West Ham", "Leeds", "Wolverhampton", "Brighton", "Nottingham", "Bournemouth"];
-    Participant[] public participants;
+    Participant[] internal participants;
     enum SWEEPSTAKE_STATUS{ OPEN, SOLD_OUT, CLOSED}
-    SWEEPSTAKE_STATUS public sweepstake_status;
+    SWEEPSTAKE_STATUS internal sweepstake_status;
     uint public entry_fee;
     uint internal MAX_PARTICIPANTS;
  
     constructor() public  {
         sweepstake_status = SWEEPSTAKE_STATUS.OPEN;
         entry_fee = 10000000;
-        MAX_PARTICIPANTS = 3;
+        MAX_PARTICIPANTS = 20;
     }
 
     struct Participant {
