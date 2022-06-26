@@ -145,5 +145,6 @@ contract Sweepstake is Ownable{
             initial_teams[relegatedOneIdx] = _promotedOne;
             initial_teams[relegatedTwoIdx] = _promotedTwo;
             initial_teams[relegatedThreeIdx] = _promotedThree;
+            teams = initial_teams;
         }
 }
