@@ -6,9 +6,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Sweepstake is Ownable{
     address[] internal participants_entries;
-    bytes32[] internal teams = [bytes32("Arsenal"), "Manchester United", "Liverpool", "Leicester", "Brentford", "Crystal Palace",
-                                "Southampton", "Newcastle", "Fulham", "Aston Villa", "Manchester City", "Everton", "Tottenham", 
-                                "Chelsea", "West Ham", "Leeds", "Wolverhampton", "Brighton", "Nottingham", "Bournemouth"];
+    bytes32[] internal initial_teams;
+    bytes32[] internal teams;
     Participant[] internal participants;
     enum SWEEPSTAKE_STATUS{ OPEN, SOLD_OUT, CLOSED}
     SWEEPSTAKE_STATUS internal sweepstake_status;
@@ -18,7 +17,11 @@ contract Sweepstake is Ownable{
     constructor() public  {
         sweepstake_status = SWEEPSTAKE_STATUS.OPEN;
         entry_fee = 10000000;
-        MAX_PARTICIPANTS = 20;
+        MAX_PARTICIPANTS = 3;
+        initial_teams = [bytes32("Arsenal"), "Manchester United", "Liverpool", "Leicester", "Brentford", "Crystal Palace",
+                                "Southampton", "Newcastle", "Fulham", "Aston Villa", "Manchester City", "Everton", "Tottenham", 
+                                "Chelsea", "West Ham", "Leeds", "Wolverhampton", "Brighton", "Nottingham", "Bournemouth"];
+        teams = initial_teams;
     }
 
     struct Participant {
@@ -26,27 +29,37 @@ contract Sweepstake is Ownable{
         bytes32 teams;
     }
 
-    function openSweepstake() public onlyOwner {
+    function openSweepstake(
+        bytes32 _relegatedOne, 
+        bytes32 _relegatedTwo, 
+        bytes32 _relegatedThree, 
+        bytes32 _promotedOne,
+        bytes32 _promotedTwo,
+        bytes32 _promotedThree) public onlyOwner{
         require(sweepstake_status == SWEEPSTAKE_STATUS.CLOSED);
+        participants_entries = new address[](0);
+        delete participants;
+        resetNewSeasonTeams(_relegatedOne, _relegatedTwo, _relegatedThree, _promotedOne, _promotedTwo, _promotedThree);
         sweepstake_status = SWEEPSTAKE_STATUS.OPEN;
     }
 
     event PlayerTeam(bytes32);
     function enter(uint256 _number) public payable{
-        checkFreeSlots();
+        require(owner() != msg.sender, "The owner can't enter the sweepstake");
         require(sweepstake_status == SWEEPSTAKE_STATUS.OPEN,"Sweepstake is either Sold Out or Closed.");
         require(msg.value >= entry_fee);
         uint256 indexValue = _number % getTeamsCount();
         participants_entries.push(msg.sender);
+        checkFreeSlots();
         bytes32 teamRandom = GetRandomTeam(indexValue);
         addParticipant(msg.sender, teamRandom);
         removeTeamsItem(indexValue);
         emit PlayerTeam(teamRandom);
     }
 
-    function getParticipantTeams() public payable returns(bytes32[] memory) {
+    event AllPlayersTeams(bytes32[]);
+    function getParticipantTeams(address payable _address) public payable {
         require(sweepstake_status == SWEEPSTAKE_STATUS.SOLD_OUT, "You can checked picked teams when Sweepstake is sold out.");
-        address _address = msg.sender;
         bytes32[] memory teamsP = new bytes32[] (getEntriesCount(_address));
         uint8 array_index;
         for(uint8 index = 0; index < participants.length; index++) {
@@ -54,7 +67,7 @@ contract Sweepstake is Ownable{
                 teamsP[array_index++] = participants[index].teams;
             }
         }
-        return teamsP;
+        emit AllPlayersTeams(teamsP);
     }
 
     function payWinner(bytes32 _champion) public onlyOwner{
@@ -85,7 +98,7 @@ contract Sweepstake is Ownable{
 
     function getEntriesCount(address _address) internal view returns(uint) {
         uint counter;
-        for(uint8 index = 0; index < participants_entries.length; index++) {
+        for(uint256 index = 0; index < participants_entries.length; index++) {
             if(participants_entries[index] == _address) {
                 counter++;
             }
@@ -107,4 +120,30 @@ contract Sweepstake is Ownable{
     function getTeamsCount() internal view returns(uint256) {
         return teams.length;
     }
+
+    function resetNewSeasonTeams(
+        bytes32 _relegatedOne, 
+        bytes32 _relegatedTwo, 
+        bytes32 _relegatedThree, 
+        bytes32 _promotedOne,
+        bytes32 _promotedTwo,
+        bytes32 _promotedThree) internal {
+            uint256 relegatedOneIdx;
+            uint256 relegatedTwoIdx;
+            uint256 relegatedThreeIdx;
+            for(uint8 index = 0; index < initial_teams.length; index++) {
+                if(initial_teams[index] == _relegatedOne){
+                    relegatedOneIdx = index;
+                }
+                else if(initial_teams[index] == _relegatedTwo){
+                    relegatedTwoIdx = index;
+                }
+                else if(initial_teams[index] == _relegatedThree){
+                    relegatedThreeIdx = index;
+                }
+            }
+            initial_teams[relegatedOneIdx] = _promotedOne;
+            initial_teams[relegatedTwoIdx] = _promotedTwo;
+            initial_teams[relegatedThreeIdx] = _promotedThree;
+        }
 }

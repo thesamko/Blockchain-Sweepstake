@@ -1,28 +1,13 @@
-from brownie import Sweepstake, accounts
-import time
+from brownie import Sweepstake
+from scripts.utils import *
 
-account = accounts.add("0xa06ea5c253925ade7e8e4d1cd613812396e8f47f2727ca15c6aa4291b758dc9b")
-
-
-def decode_hex_strings(hex_string):
-    new_hex = hex_string[2:]
-    bytes_object = new_hex.fromhex(new_hex)
-    ascii_string = bytes_object.decode("ASCII")
-    return ascii_string
+account = get_account()
 
 def check_your_teams():
     sweepstake = Sweepstake[-1]
-    vale = sweepstake.getParticipantTeams({"from":account})
-    return vale
-    
-tx = check_your_teams()
+    return sweepstake.getParticipantTeams("0x8FD52e7f0a51DdE47FFdEe0bB73AbEF1B1C5Ed41",{"from":account}) #anyAccountNumber
     
 def main():
-    print("Lenght of events " + str(len(tx.events)))
-    print("Lenght of playerteams " + str(len(tx.events["PlayerTeams"])))
-    print("event item:")
-    print(tx.events["PlayerTeams"])
-    print("---")
-    print(tx.events[0].name)
-    print("---")
-    print(tx.events[0])
+    tx = check_your_teams()
+    list_teams = [decode_hex_strings(i) for i in tx.events[0][0].popitem()[-1]]
+    print(", ".join(list_teams))
