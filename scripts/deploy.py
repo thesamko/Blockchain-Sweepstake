@@ -3,8 +3,8 @@ from scripts.utils import *
 
 account = get_account()
 
-def sweepstake():
+def sweepstake_deploy():
     sweepstake = Sweepstake.deploy({"from": account})
     
 def main():
-    sweepstake()
+    sweepstake_deploy()
