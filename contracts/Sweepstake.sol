@@ -5,14 +5,16 @@ pragma solidity ^0.6.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Sweepstake is Ownable{
-    address[] internal participants_entries;
+    address[] public participants_entries;
     bytes32[] internal initial_teams;
-    bytes32[] internal teams;
-    Participant[] internal participants;
+    bytes32[] public teams;
+    Participant[] public participants;
     enum SWEEPSTAKE_STATUS{ OPEN, SOLD_OUT, CLOSED}
-    SWEEPSTAKE_STATUS internal sweepstake_status;
+    SWEEPSTAKE_STATUS public sweepstake_status;
     uint public entry_fee;
     uint internal MAX_PARTICIPANTS;
+    event PlayerTeam(bytes32 teamRandom);
+    event AllPlayersTeams(bytes32[] teamsP);
  
     constructor() public  {
         sweepstake_status = SWEEPSTAKE_STATUS.OPEN;
@@ -43,7 +45,7 @@ contract Sweepstake is Ownable{
         sweepstake_status = SWEEPSTAKE_STATUS.OPEN;
     }
 
-    event PlayerTeam(bytes32);
+    
     function enter(uint256 _number) public payable{
         require(owner() != msg.sender, "The owner can't enter the sweepstake");
         require(sweepstake_status == SWEEPSTAKE_STATUS.OPEN,"Sweepstake is either Sold Out or Closed.");
@@ -57,7 +59,7 @@ contract Sweepstake is Ownable{
         emit PlayerTeam(teamRandom);
     }
 
-    event AllPlayersTeams(bytes32[]);
+    
     function getParticipantTeams(address payable _address) public payable {
         require(sweepstake_status == SWEEPSTAKE_STATUS.SOLD_OUT, "You can checked picked teams when Sweepstake is sold out.");
         bytes32[] memory teamsP = new bytes32[] (getEntriesCount(_address));
@@ -119,6 +121,10 @@ contract Sweepstake is Ownable{
 
     function getTeamsCount() internal view returns(uint256) {
         return teams.length;
+    }
+
+    function getTeam(uint _index) public view onlyOwner returns(bytes32) {
+        return teams[_index];
     }
 
     function resetNewSeasonTeams(
