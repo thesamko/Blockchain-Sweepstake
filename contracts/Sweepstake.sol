@@ -8,7 +8,7 @@ contract Sweepstake is Ownable{
     address[] public participants_entries;
     bytes32[] internal initial_teams;
     bytes32[] public teams;
-    Participant[] public participants;
+    Participant[] internal participants;
     enum SWEEPSTAKE_STATUS{ OPEN, SOLD_OUT, CLOSED}
     SWEEPSTAKE_STATUS public sweepstake_status;
     uint public entry_fee;
