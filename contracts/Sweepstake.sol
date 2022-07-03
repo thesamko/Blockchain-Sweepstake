@@ -17,7 +17,7 @@ contract Sweepstake is Ownable{
     constructor() public  {
         sweepstake_status = SWEEPSTAKE_STATUS.OPEN;
         entry_fee = 10000000;
-        MAX_PARTICIPANTS = 3;
+        MAX_PARTICIPANTS = 20;
         initial_teams = [bytes32("Arsenal"), "Manchester United", "Liverpool", "Leicester", "Brentford", "Crystal Palace",
                                 "Southampton", "Newcastle", "Fulham", "Aston Villa", "Manchester City", "Everton", "Tottenham", 
                                 "Chelsea", "West Ham", "Leeds", "Wolverhampton", "Brighton", "Nottingham", "Bournemouth"];
